@@ -1,7 +1,7 @@
 import "phaser";
 import { TestbedScene } from "./scene/TestbedScene";
 
-const config: GameConfig = {
+const config: Phaser.Types.Core.GameConfig = {
   title: "Testbed",
   width: 800,
   height: 600,
@@ -17,7 +17,7 @@ const config: GameConfig = {
 };
 
 export class TestbedGame extends Phaser.Game {
-  constructor(gameConfig: GameConfig) {
+  constructor(gameConfig: Phaser.Types.Core.GameConfig) {
     super(gameConfig);
   }
 }
