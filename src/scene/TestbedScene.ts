@@ -2,13 +2,13 @@ export class TestbedScene extends Phaser.Scene {
 
     private debugText: Phaser.GameObjects.Text;
 
-    private scout: Phaser.GameObjects.GameObject;
+    private scout: Phaser.Geom.Rectangle;
 
-    private scoutVision: Phaser.GameObjects.GameObject;
+    private scoutVision: Phaser.Geom.Circle;
 
-    private resource: Phaser.GameObjects.GameObject;
+    private resource: Phaser.Geom.Rectangle;
 
-    private detection: Phaser.Physics.Arcade.Collider;
+    private graphics: Phaser.GameObjects.Graphics;
 
     private isResourceScouted: boolean;
 
@@ -31,27 +31,43 @@ export class TestbedScene extends Phaser.Scene {
     public preload(): void { }
 
     public create(): void {
-        this.add.rectangle(0, 0, 2000, 2000, 0xffffff);
-        this.scout = this.add.rectangle(this.scoutPosX, this.scoutPosY, 20, 20, 0x000000);
-        this.scoutVision = this.add.circle(this.scoutPosX, this.scoutPosY, 80, 80, 0x000000);
-        this.resource = this.add.rectangle(0, 0, 80, 80, 0xffff00);
-        this.detection = this.physics.add.collider(this.scoutVision, this.resource, () => {
-            this.isResourceScouted = true;
-        });
+        this.graphics = this.add.graphics();
+        this.scout = new Phaser.Geom.Rectangle(this.scoutPosX, this.scoutPosY, 20, 20);
+        this.scoutVision = new Phaser.Geom.Circle(this.scoutPosX, this.scoutPosY, 80);//80, 0x000000
+        this.resource = new Phaser.Geom.Rectangle(0, 0, 80, 80);//0xffff00
 
         this.debugText = this.add.text(10, 500, "Debug", { color: "#00ff00" });
     }
 
     public update(): void {
-        this.detection.update();
-        this.scoutPosX++;
-        this.scoutPosY++;
+        this.draw();
+        this.scoutPosX = this.scout.centerX - 1;
+        this.scoutPosY = this.scout.centerY - 1;
+
+        Phaser.Geom.Rectangle.CenterOn(this.scout, this.scoutPosX, this.scoutPosY);
+        this.scoutVision.x = this.scoutPosX;
+        this.scoutVision.y = this.scoutPosY;
+
+        if (Phaser.Geom.Intersects.CircleToRectangle(this.scoutVision, this.resource)) {
+            this.isResourceScouted = true;
+        }
+
         const debug = [
             `Scouted the resource: ${this.isResourceScouted}`,
             `Scout X: ${this.scoutPosX}`,
             `Scout Y: ${this.scoutPosY}`,
         ];
         this.debugText.setText(debug);
+    }
+
+    private draw(): void {
+        this.graphics.clear();
+        this.graphics.lineStyle(2, 0xffffff);
+        this.graphics.strokeRectShape(this.scout);
+        this.graphics.strokeCircleShape(this.scoutVision);
+
+        this.graphics.lineStyle(2, 0xffff00);
+        this.graphics.strokeRectShape(this.resource);
     }
 
 }
